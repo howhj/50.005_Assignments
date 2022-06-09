@@ -165,7 +165,43 @@ int process_command(char **args)
   // DO NOT PRINT ANYTHING TO THE OUTPUT
 
   /***** BEGIN ANSWER HERE *****/
+  pid_t pid;
+  
+  if (args[0] == NULL) {
+    return 1;
+  }
+  else if (args[0] == "cd") {
+    shell_cd(args);
+  }
+  else if (args[0] == "help") {
+    shell_help(args);
+  }
+  else if (args[0] == "exit") {
+    shell_exit(args);
+  }
+  else if (args[0] == "usage") {
+    shell_usage(args);
+  }
+  else {
+    pid = fork();
 
+    if (pid > 0){
+      int status;
+      waitpid(pid, &status, WUNTRACED);        
+      // if child terminates properly, WIFEXITED(status) returns TRUE
+      if (WIFEXITED(status)){
+          child_exit_status = WEXITSTATUS(status);
+      }
+    }
+    else if (pid < 0) {
+      fprintf(stderr, "Fork has failed. Exiting.");
+      return 1;
+    }
+    else {
+      exec_sys_prog(args);
+    }
+
+  }
   /*********************/
   if (child_exit_status != 1)
   {
@@ -300,6 +336,7 @@ void main_loop(void)
 }*/
 
 
+
 // TASK 1 TEST
 /*int main(int argc, char **argv)
 {
@@ -310,10 +347,11 @@ void main_loop(void)
  return 0;
 }*/
 
+
+
 // TASK 2 TEST
-int main(int argc, char **argv)
+/*int main(int argc, char **argv)
 {
- 
  printf("Shell Run successful. Running now: \n");
  
  char* line = read_line_stdin();
@@ -324,4 +362,34 @@ int main(int argc, char **argv)
  printf("The second token is %s \n", args[1]);
  
  return 0;
+}*/
+
+
+
+// TASK 3 TEST
+int main(int argc, char **argv)
+{
+
+  printf("Shell Run successful. Running now: \n");
+
+  char *line = read_line_stdin();
+  printf("The fetched line is : %s \n", line);
+
+  char **args = tokenize_line_stdin(line);
+  printf("The first token is %s \n", args[0]);
+  printf("The second token is %s \n", args[1]);
+
+  // Setup path
+  if (getcwd(output_file_path, sizeof(output_file_path)) != NULL)
+  {
+    printf("Current working dir: %s\n", output_file_path);
+  }
+  else
+  {
+    perror("getcwd() error, exiting now.");
+    return 1;
+  }
+  process_command(args);
+
+  return 0;
 }
