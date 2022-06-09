@@ -189,7 +189,9 @@ char *read_line_stdin(void)
   // DO NOT PRINT ANYTHING TO THE OUTPUT
 
   /***** BEGIN ANSWER HERE *****/
-
+  if (line) {
+    size_t user_input = getline(&line, &buf_size, stdin);
+  }
   /*********************/
 
   return line;
@@ -213,7 +215,17 @@ char **tokenize_line_stdin(char *line)
   // 3. Store the address to first letter of each word in the command in tokens
   // DO NOT PRINT ANYTHING TO THE OUTPUT
   /***** BEGIN ANSWER HERE *****/
+  if (tokens) {
+    token = strtok(line, SHELL_INPUT_DELIM);
+    tokens[0] = token;
+    int i = 1;
 
+    while (token) {
+      token = strtok(NULL, SHELL_INPUT_DELIM);
+      tokens[i] = token;
+      i++;
+    }
+  }
   /*********************/
 
   return tokens;
@@ -265,7 +277,7 @@ void main_loop(void)
   } while (status);
 }
 
-int main(int argc, char **argv)
+/*int main(int argc, char **argv)
 {
 
   printf("CSEShell Run successful. Running now: \n");
@@ -285,4 +297,31 @@ int main(int argc, char **argv)
   main_loop();
 
   return 0;
+}*/
+
+
+// TASK 1 TEST
+/*int main(int argc, char **argv)
+{
+ 
+ char* line = read_line_stdin();
+ printf("The fetched line is : %s \n", line);
+ 
+ return 0;
+}*/
+
+// TASK 2 TEST
+int main(int argc, char **argv)
+{
+ 
+ printf("Shell Run successful. Running now: \n");
+ 
+ char* line = read_line_stdin();
+ printf("The fetched line is : %s \n", line);
+ 
+ char** args = tokenize_line_stdin(line);
+ printf("The first token is %s \n", args[0]);
+ printf("The second token is %s \n", args[1]);
+ 
+ return 0;
 }
