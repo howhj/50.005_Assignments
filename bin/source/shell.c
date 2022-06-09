@@ -165,42 +165,41 @@ int process_command(char **args)
   // DO NOT PRINT ANYTHING TO THE OUTPUT
 
   /***** BEGIN ANSWER HERE *****/
-  pid_t pid;
-  
-  if (args[0] == NULL) {
+  if (!args[0]) {
     return 1;
   }
-  else if (args[0] == "cd") {
-    shell_cd(args);
+  else if (strcmp(args[0], "cd") == 0) {
+    return shell_cd(args);
   }
-  else if (args[0] == "help") {
-    shell_help(args);
+  else if (strcmp(args[0], "help") == 0) {
+    return shell_help(args);
   }
-  else if (args[0] == "exit") {
-    shell_exit(args);
+  else if (strcmp(args[0], "exit") == 0) {
+    return shell_exit(args);
   }
-  else if (args[0] == "usage") {
-    shell_usage(args);
+  else if (strcmp(args[0], "usage") == 0) {
+    current_number_tokens = sizeof(args) / sizeof(args[0]);
+    return shell_usage(args);
+  }
+
+  pid_t pid;
+
+  pid = fork();
+
+  if (pid > 0){
+    int status;
+    waitpid(pid, &status, WUNTRACED);        
+    // if child terminates properly, WIFEXITED(status) returns TRUE
+    if (WIFEXITED(status)){
+        child_exit_status = WEXITSTATUS(status);
+    }
+  }
+  else if (pid < 0) {
+    // if error during fork
+    return 1;
   }
   else {
-    pid = fork();
-
-    if (pid > 0){
-      int status;
-      waitpid(pid, &status, WUNTRACED);        
-      // if child terminates properly, WIFEXITED(status) returns TRUE
-      if (WIFEXITED(status)){
-          child_exit_status = WEXITSTATUS(status);
-      }
-    }
-    else if (pid < 0) {
-      fprintf(stderr, "Fork has failed. Exiting.");
-      return 1;
-    }
-    else {
-      exec_sys_prog(args);
-    }
-
+    exec_sys_prog(args);
   }
   /*********************/
   if (child_exit_status != 1)
@@ -226,7 +225,7 @@ char *read_line_stdin(void)
 
   /***** BEGIN ANSWER HERE *****/
   if (line) {
-    size_t user_input = getline(&line, &buf_size, stdin);
+    getline(&line, &buf_size, stdin);
   }
   /*********************/
 
@@ -307,13 +306,20 @@ void main_loop(void)
     fflush(stdout); // clear the buffer and move the output to the console using fflush
 
     /***** BEGIN ANSWER HERE *****/
-    status = shell_exit(args); // remove this line when you work on this task
-
+    //status = shell_exit(args); // remove this line when you work on this task
+    line = read_line_stdin();
+    args = tokenize_line_stdin(line);
+    int result = process_command(args);
+    free(line);
+    free(args);
+    if (result != 1) {
+      exit(0);
+    }
     /*********************/
   } while (status);
 }
 
-/*int main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 
   printf("CSEShell Run successful. Running now: \n");
@@ -333,7 +339,7 @@ void main_loop(void)
   main_loop();
 
   return 0;
-}*/
+}
 
 
 
@@ -367,7 +373,7 @@ void main_loop(void)
 
 
 // TASK 3 TEST
-int main(int argc, char **argv)
+/*int main(int argc, char **argv)
 {
 
   printf("Shell Run successful. Running now: \n");
@@ -392,4 +398,4 @@ int main(int argc, char **argv)
   process_command(args);
 
   return 0;
-}
+}*/
