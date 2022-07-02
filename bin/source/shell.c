@@ -178,7 +178,12 @@ int process_command(char **args)
     return shell_exit(args);
   }
   else if (strcmp(args[0], "usage") == 0) {
-    current_number_tokens = sizeof(args) / sizeof(args[0]);
+    if (args[1]) {
+      current_number_tokens = 2;
+    }
+    else {
+      current_number_tokens = 1;
+    }
     return shell_usage(args);
   }
 
@@ -199,7 +204,10 @@ int process_command(char **args)
     return 1;
   }
   else {
-    exec_sys_prog(args);
+    int returnval = exec_sys_prog(args);
+    if (returnval == -1) {
+      return -1;
+    }
   }
   /*********************/
   if (child_exit_status != 1)
