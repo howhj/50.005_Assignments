@@ -28,6 +28,19 @@ int execute()
    // DO NOT PRINT ANYTHING TO THE OUTPUT
 
    /***** BEGIN ANSWER HERE *****/
+   fptr = fopen("output.txt", "r");
+   int number_of_lines = 0;
+   size_t buf_size = SHELL_BUFFERSIZE;
+   char *line = malloc(sizeof(char) * buf_size);
+    
+    
+    
+    while (getline(&line, &buf_size, fptr) != -1){
+        
+        number_of_lines++;
+    }
+
+   live_daemons = number_of_lines;
 
    /*********************/
    if (live_daemons == 0)

@@ -26,6 +26,16 @@ int execute(char **args)
     // DO NOT PRINT ANYTHING TO THE OUTPUT
 
     /***** BEGIN ANSWER HERE *****/
+    size_t buf_size = SHELL_BUFFERSIZE;
+    char *line = malloc(sizeof(char) * buf_size);
+    
+    
+    
+    while (getline(&line, &buf_size, fp) != -1){
+        
+        number_of_lines++;
+    }
+
 
     /*********************/
     fclose(fp); // close file.
