@@ -106,7 +106,7 @@ def main(args):
 
                             enc_filename = "enc_recv_" + filename.split("/")[-1]
 
-                            # Write the file with 'recv_' prefix
+                            # Write the encrypted data to disk
                             with open(
                                 f"recv_files_enc/{enc_filename}", mode="wb"
                             ) as fp:

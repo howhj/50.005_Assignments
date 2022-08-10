@@ -105,56 +105,63 @@ def main(args):
     print("Establishing connection to server...")
 
     # Connect to server
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.connect((server_address, port))
-            print("Connected")
-        except ConnectionRefusedError:
-            # Server is not alive
-            print("Failed to connect to server. Exiting.")
-            s.close()
-            return
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.connect((server_address, port))
+                print("Connected")
+            except ConnectionRefusedError:
+                # Server is not alive
+                s.close()
+                print("Failed to connect to server. Exiting.")
+                return
 
-        try:
-            authenticate(s)
-        except Exception as e:
-            print("Failed to autheticate server. Exiting.")
-            print(e)
-            s.sendall(convert_int_to_bytes(2))
-            return
-
-        while True:
-            filename = input(
-                "Enter a filename to send (enter -1 to exit):"
-            ).strip()
-
-            while filename != "-1" and (not pathlib.Path(filename).is_file()):
-                filename = input("Invalid filename. Please try again:").strip()
-
-            if filename == "-1":
+            try:
+                authenticate(s)
+            except Exception as e:
+                print("Failed to autheticate server. Exiting.")
+                print(e)
                 s.sendall(convert_int_to_bytes(2))
-                break
+                return
 
-            filename_bytes = bytes(filename, encoding="utf8")
+            while True:
+                filename = input(
+                    "Enter a filename to send (enter -1 to exit):"
+                ).strip()
 
-            # Send the filename
-            s.sendall(convert_int_to_bytes(0))
-            s.sendall(convert_int_to_bytes(len(filename_bytes)))
-            s.sendall(filename_bytes)
+                while filename != "-1" and (not pathlib.Path(filename).is_file()):
+                    filename = input("Invalid filename. Please try again:").strip()
 
-            # Send the file
-            with open(filename, mode="rb") as fp:
-                data = fp.read()
-                s.sendall(convert_int_to_bytes(1))
-                s.sendall(convert_int_to_bytes(len(data)))
-                s.sendall(data)
+                if filename == "-1":
+                    s.sendall(convert_int_to_bytes(2))
+                    break
 
-        # Close the connection
-        s.sendall(convert_int_to_bytes(2))
-        print("Closing connection...")
+                filename_bytes = bytes(filename, encoding="utf8")
 
-    end_time = time.time()
-    print(f"Program took {end_time - start_time}s to run.")
+                # Send the filename
+                s.sendall(convert_int_to_bytes(0))
+                s.sendall(convert_int_to_bytes(len(filename_bytes)))
+                s.sendall(filename_bytes)
+
+                # Send the file
+                with open(filename, mode="rb") as fp:
+                    data = fp.read()
+                    s.sendall(convert_int_to_bytes(1))
+                    s.sendall(convert_int_to_bytes(len(data)))
+                    s.sendall(data)
+
+            # Close the connection
+            s.sendall(convert_int_to_bytes(2))
+            print("Closing connection...")
+
+        end_time = time.time()
+        print(f"Program took {end_time - start_time}s to run.")
+    
+
+    except BrokenPipeError:
+        # Connection suddenly terminated
+        print("Connection with server lost. Exiting.")
+        return
 
 
 if __name__ == "__main__":

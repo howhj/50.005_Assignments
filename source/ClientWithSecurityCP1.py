@@ -176,13 +176,12 @@ def main(args):
                     data = fp.read()
                     encrypted_data = encrypt(data, server_pub_key)
 
+                    # Save the encrypted data to disk
                     enc_filename = "enc_" + filename.split("/")[-1]
-
-                    # Write the file with 'recv_' prefix
                     with open(
                         f"send_files_enc/{enc_filename}", mode="wb"
-                    ) as fp:
-                        fp.write(encrypted_data)
+                    ) as f:
+                        f.write(encrypted_data)
 
                     s.sendall(convert_int_to_bytes(1))
                     s.sendall(convert_int_to_bytes(len(encrypted_data)))
