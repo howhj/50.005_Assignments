@@ -104,6 +104,14 @@ def main(args):
                             file_data = read_bytes(client_socket, file_len)
                             # print(file_data)
 
+                            enc_filename = "enc_recv_" + filename.split("/")[-1]
+
+                            # Write the file with 'recv_' prefix
+                            with open(
+                                f"recv_files_enc/{enc_filename}", mode="wb"
+                            ) as fp:
+                                fp.write(file_data)
+
                             # Decrypt with private key
                             with open("auth/server_private_key.pem", mode="r", encoding="utf-8") as key_file:
                                 private_key = serialization.load_pem_private_key(
